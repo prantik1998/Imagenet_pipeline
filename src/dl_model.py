@@ -10,6 +10,7 @@ from .read_yaml import read_yaml
 from .data_loader import DataLoader
 from .model.resnet import resnet152
 from .model.alexnet import alexnet
+from .model.unet import unet
 from .logger import Logger
 from .model import generic_model
 
@@ -17,16 +18,18 @@ log = Logger()
 
 class dl_model():
 
-	def __init__(self, model, use_trained = False):
+	def __init__(self, model,work="classification", use_trained = False):
 		
 		self.config = self.get_config()
 		self.cuda = self.config['cuda'] and torch.cuda.is_available()
 		self.seed()
 		
 		self.get_transforms()
+
+		self.work = work;
 		
-		self.train_data = DataLoader(self.config['train'], transform=self.train_transform, target_transform = self.target_transform)
-		self.test_data = DataLoader(self.config['test'], transform=self.test_transform, target_transform = self.target_transform)
+		self.train_data = DataLoader(self.config['train'][self.work], transform=self.train_transform, target_transform = self.target_transform,work=self.work)
+		self.test_data = DataLoader(self.config['test'][self.work], transform=self.test_transform, target_transform = self.target_transform,work=self.work)
 
 		self.train_data_loader = data.DataLoader(self.train_data, batch_size=self.config['train']['batch_size'], shuffle=True, num_workers=self.config['train']['cpu_alloc'])
 		self.test_data_loader = data.DataLoader(self.test_data, batch_size=self.config['test']['batch_size'], shuffle=False, num_workers=self.config['test']['cpu_alloc'])
@@ -37,7 +40,9 @@ class dl_model():
 		self.testing_info = {'Loss': 0, 'Acc': 0, 'Keep_log': False, 'Count':0}
 		
 		self.model_best = {'Loss': sys.float_info.max, 'Acc': 0.0}
+		
 
+		
 		if self.cuda:
 			self.model.cuda()
 
@@ -70,6 +75,8 @@ class dl_model():
 			return resnet152(pretrained=True, config=self.config)
 		elif model == 'AlexNet':
 			return alexnet(pretrained=True, config=self.config)
+		elif model == 'UNet':
+			return unet()
 		
 		else:
 			print("Can't find model")
@@ -118,59 +125,59 @@ class dl_model():
 	def train_model(self):
 
 		try:
-
-			self.train_data.get_all_names_refresh()
-			self.test_data.get_all_names_refresh()
-
-			self.model.requires_grad = True
-
-			self.model.train()
-
-			self.model.opt.zero_grad()
-
-			for epoch_i in range(self.epoch_start, self.config['epoch']+1):
-
-				for no, (file_name, data, target) in enumerate(self.train_data_loader):
-
-					data, target = Variable(data), Variable(target)
-
-					if self.cuda:
-						data, target = data.cuda(), target.cuda()
-
-					data = self.model(data)
-
-					loss = self.model.loss(data, target, self.training_info)
-
-					loss.backward()
-
-					if (self.start_no + no)%self.config['cummulative_batch_steps']==0 and (self.start_no + no)!=0:
-
-						self.model.opt.step()
-
-						self.model.opt.zero_grad()
-
-					if (self.start_no + no)%self.config['log_interval_steps'] == 0 and (self.start_no + no) != 0:
-
-						self.model.save(no=(self.start_no + no), epoch_i=epoch_i, info = self.training_info)
-
-					if (self.start_no + no)%self.config['print_log_steps'] == 0 and (self.start_no + no) != 0:
-
-						self.model.print_info(self.training_info)
-						log.info()
-
-					if (self.start_no + no)%self.config['test_now'] == 0 and (self.start_no + no)!=0:
-
-						self.test_model()
-
-						self.model.train()
-						self.model.requires_grad = True
-						self.model.opt.zero_grad()
-					if (self.start_no + no) == len(self.train_data_loader) - 1:
-						break
-
-				self.model.save(no=0, epoch_i=epoch_i, info = self.training_info)
-
-				self.training_info = {'Loss': [], 'Acc': [], 'Keep_log': True, 'Count':0}
+			if self.work=="classification":
+				self.train_data.get_all_names_refresh()
+				self.test_data.get_all_names_refresh()
+	
+				self.model.requires_grad = True
+	
+				self.model.train()
+	
+				self.model.opt.zero_grad()
+	
+				for epoch_i in range(self.epoch_start, self.config['epoch']+1):
+	
+					for no, (file_name, data, target) in enumerate(self.train_data_loader):
+	
+						data, target = Variable(data), Variable(target)
+	
+						if self.cuda:
+							data, target = data.cuda(), target.cuda()
+	
+						data = self.model(data)
+	
+						loss = self.model.loss(data, target, self.training_info)
+	
+						loss.backward()
+	
+						if (self.start_no + no)%self.config['cummulative_batch_steps']==0 and (self.start_no + no)!=0:
+	
+							self.model.opt.step()
+	
+							self.model.opt.zero_grad()
+	
+						if (self.start_no + no)%self.config['log_interval_steps'] == 0 and (self.start_no + no) != 0:
+	
+							self.model.save(no=(self.start_no + no), epoch_i=epoch_i, info = self.training_info)
+	
+						if (self.start_no + no)%self.config['print_log_steps'] == 0 and (self.start_no + no) != 0:
+	
+							self.model.print_info(self.training_info)
+							log.info()
+	
+						if (self.start_no + no)%self.config['test_now'] == 0 and (self.start_no + no)!=0:
+	
+							self.test_model()
+	
+							self.model.train()
+							self.model.requires_grad = True
+							self.model.opt.zero_grad()
+						if (self.start_no + no) == len(self.train_data_loader) - 1:
+							break
+	
+					self.model.save(no=0, epoch_i=epoch_i, info = self.training_info)
+	
+					self.training_info = {'Loss': [], 'Acc': [], 'Keep_log': True, 'Count':0}
 
 			return True
 
@@ -184,38 +191,40 @@ class dl_model():
 
 		try:
 
-			self.model.requires_grad = False
-
-			self.model.eval()
-
-			for no, (file_name, data, target) in enumerate(self.test_data_loader):
-
-				data, target = Variable(data), Variable(target)
-
-				if self.cuda:
-					data, target = data.cuda(), target.cuda()
-
-				data_out = self.model(data)
-
-				if not os.path.exists(self.config['dir']['Exp']+'/Temporary'):
-					os.mkdir(self.config['dir']['Exp']+'/Temporary')
-
-				loss = self.model.loss(data_out, target, self.testing_info)
-
-			log.info('Testing Completed successfully')
-			log.info('Test Results\n\n', self.testing_info)
-
-			if self.testing_info['Acc'] > self.model_best['Acc']:
-
-				print("New best model found")
-
-				self.model_best['Acc'] = self.testing_info['Acc']
-				
-				self.model.save(no=0, epoch_i=0, info = self.testing_info)
-
-			self.testing_info = {'Loss': 0, 'Acc': 0, 'Keep_log': False, 'Count':0}
-
-			log.info('Testing Completed successfully')
+			if self.work == "classification":
+	
+				self.model.requires_grad = False
+	
+				self.model.eval()
+	
+				for no, (file_name, data, target) in enumerate(self.test_data_loader):
+	
+					data, target = Variable(data), Variable(target)
+	
+					if self.cuda:
+						data, target = data.cuda(), target.cuda()
+	
+					data_out = self.model(data)
+	
+					if not os.path.exists(self.config['dir']['Exp']+'/Temporary'):
+						os.mkdir(self.config['dir']['Exp']+'/Temporary')
+	
+					loss = self.model.loss(data_out, target, self.testing_info)
+	
+				log.info('Testing Completed successfully')
+				log.info('Test Results\n\n', self.testing_info)
+	
+				if self.testing_info['Acc'] > self.model_best['Acc']:
+	
+					print("New best model found")
+	
+					self.model_best['Acc'] = self.testing_info['Acc']
+					
+					self.model.save(no=0, epoch_i=0, info = self.testing_info)
+	
+				self.testing_info = {'Loss': 0, 'Acc': 0, 'Keep_log': False, 'Count':0}
+	
+				log.info('Testing Completed successfully')
 
 			return True
 

@@ -14,17 +14,42 @@ from .logger import Logger
 
 log = Logger()
 
-class DataLoader(data.Dataset):
+import torchvision.transforms as transforms
+from torchvision.transforms import ToTensor
+import torch.utils.data as data
 
+import os
+import numpy as np
+
+from scipy.misc import imresize
+from PIL import Image
+
+import cv2
+import matplotlib.pyplot as plt
+from .logger import Logger
+
+log = Logger()
+
+
+
+
+class DataLoader(data.Dataset):
 	def __init__(self, config, **kwargs):
-		
-		self.root = config['dir']
+
+		self.work = kwargs['work']
+		self.Type = config['Type']
+
+		if self.work=="classification":
+			self.root=config["dir"]
+		if self.work=="segmenation":
+			self.img_dir=config["img_dir"]
+			self.target=config["tar_class"]
+			self.filename=config[self.Type]
 		self.IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm']
 
 		self.get_all_names_refresh()
 
-		self.Type = config['Type']
-		
+
 		self.transform = kwargs['transform']
 		self.target_transform = kwargs['target_transform']
 
@@ -35,65 +60,46 @@ class DataLoader(data.Dataset):
 
 		self.img_size = config['image_size']
 
-	def aspect_resize(self, img, n_height, center_aspect=1, target_all=[[0, 0, 0, 0]]):
-
-		# A 5by5 image would have a center of center_aspect. A nbyn would have a center of n//self.factor*center_aspect.
-	
-		width, height = img.size
-		
-		length = max(width, height)
-
-		blank = np.zeros([length, length, 3]).astype(np.uint8)
-
-		blank[(length - height)//2:(length + height)//2, (length - width)//2:(length + width)//2, :] = np.array(img)
-
-		for target in target_all:
-
-			new_width, new_height = int(target[2]/length*n_height), int(target[3]/length*n_height)
-
-			center = [(length - height)//2 + target[1] + target[3]//2, (length - width)//2 + target[0] + target[2]//2]
-
-			center = (np.array(center)/length*n_height).astype(np.int32)		
-
-		img = Image.fromarray(blank, 'RGB')
-
-		return img.resize((n_height, n_height), Image.ANTIALIAS)
-
 	def get_all_names_refresh(self):
 
-		self.classes, self.class_to_idx = self.find_classes(self.root)
-		self.imgs = self.make_dataset(self.root, self.class_to_idx)
+		if self.work=="classification":
+			self.classes, self.class_to_idx = self.find_classes(self.root)
+			self.imgs = self.make_dataset(self.root,self.class_to_idx)
 
-		if len(self.imgs) == 0:
-			raise(RuntimeError("Found 0 images in subfolders of: " + self.root + "\n"
-							   "Supported image extensions are: " + ",".join(self.IMG_EXTENSIONS)))
+			if len(self.imgs) == 0:
+				raise(RuntimeError("Found 0 images in subfolders of: " + self.root + "\n"
+								   "Supported image extensions are: " + ",".join(self.IMG_EXTENSIONS)))
 
-	def is_image_file(self, filename):
-		
-		filename_lower = filename.lower()
-		return any(filename_lower.endswith(ext) for ext in self.IMG_EXTENSIONS)
+		elif self.work=="segmentation":
+			f=open(self.filename,"r")
+			a=f.read().split("\n")
+			self.imgs=[i+".jpg" for i in a if i!=""]
+			self.target=[i+".png" for i in a if i!=""]
+
 
 	def find_classes(self, dir):
-		
+
 		classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
 		classes.sort()
 		class_to_idx = {classes[i]: i for i in range(len(classes))}
 		return classes, class_to_idx
 
 	def make_dataset(self, dir, class_to_idx):
-		images = []
-		dir = os.path.expanduser(dir)
-		for target in sorted(os.listdir(dir)):
-			d = os.path.join(dir, target)
-			if not os.path.isdir(d):
-				continue
+		if self.work=="classification":
+			images = []
+			dir = os.path.expanduser(dir)
+			for target in sorted(os.listdir(dir)):
+				d = os.path.join(dir, target)
+				if not os.path.isdir(d):
+					continue
 
-			for root, _, fnames in sorted(os.walk(d)):
-				for fname in sorted(fnames):
-					if self.is_image_file(fname):
-						path = os.path.join(root, fname)
-						item = (path, class_to_idx[target])
-						images.append(item)
+				for root, _, fnames in sorted(os.walk(d)):
+					for fname in sorted(fnames):
+						if self.is_image_file(fname):
+							path = os.path.join(root, fname)
+							item = (path, class_to_idx[target])
+							images.append(item)
+
 
 		return images
 
@@ -123,7 +129,7 @@ class DataLoader(data.Dataset):
 		plt.show()
 
 	def __getitem__(self, index):
-		
+
 		path, target = self.imgs[index]
 
 		img_p = self.loader(path)
@@ -133,6 +139,7 @@ class DataLoader(data.Dataset):
 		img_p = self.transform(img_p)
 
 		return path, img_p, target
-		
+
 	def __len__(self):
 		return len(self.imgs)
+
