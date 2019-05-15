@@ -10,9 +10,9 @@ class PipelineManager():#Creating the PipelineManger
 
 	def __init__(self):#Constructor
 		self.config_file = read_yaml()#Calling the function read_yaml
-		for i in self.config_file['dir']:#
-			if not os.path.exists(self.config_file['dir'][i]):
-				os.mkdir(self.config_file['dir'][i])		
+		# for i in self.config_file['dir']:#
+		# 	if not os.path.exists(self.config_file['dir'][i]):
+		# 		os.mkdir(self.config_file['dir'][i])
 		
 	def prepare_metadata(self, pipeline_name, model_name):
 		if pipeline_name == 'classification':

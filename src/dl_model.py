@@ -31,8 +31,8 @@ class dl_model():
 		self.train_data = DataLoader(self.config['train'][self.work], transform=self.train_transform, target_transform = self.target_transform,work=self.work)
 		self.test_data = DataLoader(self.config['test'][self.work], transform=self.test_transform, target_transform = self.target_transform,work=self.work)
 
-		self.train_data_loader = data.DataLoader(self.train_data, batch_size=self.config['train']['batch_size'], shuffle=True, num_workers=self.config['train']['cpu_alloc'])
-		self.test_data_loader = data.DataLoader(self.test_data, batch_size=self.config['test']['batch_size'], shuffle=False, num_workers=self.config['test']['cpu_alloc'])
+		self.train_data_loader = data.DataLoader(self.train_data, batch_size=self.config['train'][self.work]['batch_size'], shuffle=True, num_workers=self.config['train'][self.work]['cpu_alloc'])
+		self.test_data_loader = data.DataLoader(self.test_data, batch_size=self.config['test'][self.work]['batch_size'], shuffle=False, num_workers=self.config['test'][self.work]['cpu_alloc'])
 
 		self.model = self.get_model(model, use_trained)
 
@@ -69,7 +69,7 @@ class dl_model():
 				return toreturn
 			else:
 				print("No trained model")
-			# print("Yo")
+
 
 		elif model == 'ResNet':
 			return resnet152(pretrained=True, config=self.config)
@@ -83,7 +83,7 @@ class dl_model():
 
 	def get_transforms(self):
 
-		if self.config['train']['transform'] == False:
+		if self.config['train'][self.work]['transform'] == False:
 			self.train_transform = transforms.Compose([
 											transforms.ColorJitter(brightness=self.config['augmentation']['brightness'], contrast=self.config['augmentation']['contrast'], saturation=self.config['augmentation']['saturation'], hue=self.config['augmentation']['hue']),
 											transforms.ToTensor(),
@@ -91,7 +91,7 @@ class dl_model():
 		else:
 			self.train_transform = train_transform
 
-		if self.config['test']['transform'] == False:
+		if self.config['test'][self.work]['transform'] == False:
 			self.test_transform = transforms.Compose([
 											 transforms.ToTensor(),
 											 ])

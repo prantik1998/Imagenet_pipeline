@@ -30,5 +30,5 @@ if __name__ == "__main__":#Running the code
 	pipeline_manager = PipelineManager()#Calling the PipelineManager
 	log = Logger()#Calling the Logger function
 	log.first()
-	
+
 	main()#Calling the main function

@@ -5,7 +5,7 @@ import torch.optim as optim
 import numpy as np
 import os
 
-from .unet_parts import *
+from .src.model.unet_parts import *
 
 
 class UNet(nn.Module):

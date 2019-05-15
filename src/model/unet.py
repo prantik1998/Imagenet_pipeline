@@ -6,10 +6,10 @@ import numpy as np
 import shutil
 import os
 
-from unet_parts import *
+from .unet_parts import *
 
 
-class UNet(nn.Module):
+class unet(nn.Module):
 
 	def __init__(self, n_channels, n_classes, lr=1e-4, opt='Adam', lossf='MSE', logger_dir='', PreTrained=True):
 		
