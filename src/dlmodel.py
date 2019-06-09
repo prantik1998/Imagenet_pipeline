@@ -61,11 +61,13 @@ class DlModel:
 			self.epoch_start = int(config.pretrained_model['checkpoint'].split('_')[1])
 			log.info('Loaded the model')
 
-	def get_config(self):
+	@staticmethod
+	def get_config():
 
 		importlib.reload(config)
 
-	def seed(self):
+	@staticmethod
+	def seed():
 
 		np.random.seed(config.seed)
 		random.seed(config.seed)

@@ -8,14 +8,11 @@ class Logger:
 
 	def __init__(self):
 		self.write_path = config.dir['Exp']+'/log.txt'
-		self.write_path_err = config.dir['Exp']+'/log_err.txt'
-		sys.stderr = open(self.write_path_err, 'a')
 		self.f = open(self.write_path, 'a')
-		self.g = open(self.write_path_err, 'a')
 
 	def first(self):
-		self.f.write('\n--------- Starting new session: '+ str(datetime.now().time()) + ' ---------\n\n')
-		print('\n--------- Starting new session: '+ str(datetime.now().time()) + ' ---------\n\n', file=sys.stderr)
+		self.f.write('\n--------- Starting new session: ' + str(datetime.now().time()) + ' ---------\n\n')
+		print('\n--------- Starting new session: ' + str(datetime.now().time()) + ' ---------\n\n', file=sys.stderr)
 	
 	def info(self, *args):
 

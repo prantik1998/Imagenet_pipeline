@@ -25,7 +25,8 @@ class DataLoader(data.Dataset):
 		self.transform = kwargs['transform']
 		self.img_size = config['image_size']
 
-	def aspect_resize(self, img, n_height):
+	@staticmethod
+	def aspect_resize(img, n_height):
 
 		width, height = img.size
 		
@@ -42,11 +43,11 @@ class DataLoader(data.Dataset):
 	def get_all_names_refresh(self):
 
 		self.classes, self.class_to_idx = self.find_classes(self.root)
-		self.imgs = self.make_dataset(self.root, self.class_to_idx)
+		self.imgs = self.make_data_set(self.root, self.class_to_idx)
 
 		if len(self.imgs) == 0:
 			raise(RuntimeError(
-				"Found 0 images in subfolders of: " + self.root + "\n"
+				"Found 0 images in sub folders of: " + self.root + "\n"
 				"Supported image extensions are: " + ",".join(self.IMG_EXTENSIONS)))
 
 	def is_image_file(self, filename):
@@ -54,14 +55,15 @@ class DataLoader(data.Dataset):
 		filename_lower = filename.lower()
 		return any(filename_lower.endswith(ext) for ext in self.IMG_EXTENSIONS)
 
-	def find_classes(self, dir):
+	@staticmethod
+	def find_classes(dir_):
 		
-		classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
+		classes = [d for d in os.listdir(dir_) if os.path.isdir(os.path.join(dir_, d))]
 		classes.sort()
 		class_to_idx = {classes[i]: i for i in range(len(classes))}
 		return classes, class_to_idx
 
-	def make_dataset(self, dir_, class_to_idx):
+	def make_data_set(self, dir_, class_to_idx):
 
 		images = []
 		dir_ = os.path.expanduser(dir_)
@@ -71,21 +73,23 @@ class DataLoader(data.Dataset):
 				continue
 
 			for root, _, fnames in sorted(os.walk(d)):
-				for fname in sorted(fnames):
-					if self.is_image_file(fname):
-						path = os.path.join(root, fname)
+				for f_name in sorted(fnames):
+					if self.is_image_file(f_name):
+						path = os.path.join(root, f_name)
 						item = (path, class_to_idx[target])
 						images.append(item)
 
 		return images
 
-	def loader(self, path):
+	@staticmethod
+	def loader(path):
 		# open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
 		with open(path, 'rb') as f:
 			with Image.open(f) as img:
 				return img.convert('RGB')
 
-	def show_img(self, img):
+	@staticmethod
+	def show_img(img):
 
 		plt.imshow(img)
 		plt.show()

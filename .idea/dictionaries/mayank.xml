@@ -4,6 +4,8 @@
       <w>alexnet</w>
       <w>fnames</w>
       <w>imgs</w>
+      <w>inplanes</w>
+      <w>pretrained</w>
       <w>resnet</w>
     </words>
   </dictionary>

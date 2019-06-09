@@ -12,10 +12,12 @@ class PipelineManager:
 			if not os.path.exists(config.dir[i]):
 				os.mkdir(config.dir[i])
 
-	def train(self):
+	@staticmethod
+	def train():
 		train()
 
-	def test(self):
+	@staticmethod
+	def test():
 		test()
 
 

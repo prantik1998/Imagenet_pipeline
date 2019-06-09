@@ -11,7 +11,8 @@ log = Logger()
 
 class Model(nn.Module):
 
-	def accuracy(self, x, y):
+	@staticmethod
+	def accuracy(x, y):
 
 		_, arg = torch.max(x, dim=1)
 
@@ -19,7 +20,8 @@ class Model(nn.Module):
 
 		return torch.mean(eq.float())
 
-	def print_info(self, info):
+	@staticmethod
+	def print_info(info):
 
 		log.info('The average accuracy is :', np.mean(info['Acc']))
 		log.info('The current accuracy is :', info['Acc'][-1])
