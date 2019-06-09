@@ -50,9 +50,9 @@ This folder is not versioned.
 
 For this ImageNet pipeline the data-set should have the following structure
 
-Images/
-├── 0
-├── 1
-└── 2
+Images/<br>
+├── 0<br>
+├── 1<br>
+└── 2<br>
 
 Every class should have specific folder. The way the data is loaded can be found in src/data_loader.py
