@@ -1,3 +1,5 @@
+# This file contains all the constants used in the project
+
 import os
 from torchvision import transforms
 

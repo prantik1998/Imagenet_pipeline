@@ -17,6 +17,10 @@ log = Logger()
 
 class DlModel:
 
+	"""
+	A Class which contains the dataloader and the model
+	"""
+
 	def __init__(self):
 
 		self.cuda = config.cuda and torch.cuda.is_available()
@@ -88,7 +92,13 @@ class DlModel:
 
 	def train_model(self):
 
+		"""
+		Call this function to train the model
+		"""
+
 		try:
+
+			log.info('Training Mode')
 
 			self.start_training()
 
@@ -136,6 +146,10 @@ class DlModel:
 			return False
 
 	def test_model(self):
+
+		"""
+		Call this function to test the model
+		"""
 
 		log.info('Testing Mode')
 

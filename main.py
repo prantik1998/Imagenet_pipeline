@@ -1,6 +1,6 @@
 # Author - Mayank Kumar Singh
 
-import configs.config as config
+import configs.config as config  # This is called so as to create the Exp directory if it does not exist
 import click
 from src.pipeline_manager import PipelineManager
 from src.logger import Logger
@@ -28,7 +28,6 @@ def test():
 
 
 if __name__ == "__main__":
-
 	pipeline_manager = PipelineManager()
 	log = Logger()
 	log.first()

@@ -11,6 +11,10 @@ log = Logger()
 
 class Model(nn.Module):
 
+	"""
+	This is the super class of all the models and contains basic utility functions
+	"""
+
 	@staticmethod
 	def accuracy(x, y):
 

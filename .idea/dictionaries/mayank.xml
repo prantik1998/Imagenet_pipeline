@@ -5,6 +5,7 @@
       <w>fnames</w>
       <w>imgs</w>
       <w>inplanes</w>
+      <w>matplotlib</w>
       <w>pretrained</w>
       <w>resnet</w>
     </words>

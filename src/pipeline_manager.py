@@ -6,8 +6,12 @@ log = Logger()
 
 
 class PipelineManager:
+	"""
+	This Class should be used as a control center to run different functions
+	"""
 
 	def __init__(self):
+
 		for i in config.dir:
 			if not os.path.exists(config.dir[i]):
 				os.mkdir(config.dir[i])
