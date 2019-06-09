@@ -1,11 +1,11 @@
 import torch.nn as nn
-import math
 import torch.utils.model_zoo as model_zoo
-from .generic_model import model
 import torch
-import torch.nn.functional as F
 import torch.optim as optim
+
+from .generic_model import Model
 from ..logger import Logger
+import configs.config as config
 
 log = Logger()
 
@@ -17,18 +17,17 @@ model_urls = {
 }
 
 
-class AlexNet(model):
+class AlexNet(Model):
 
-    def __init__(self, config, num_classes=1000):
+    def __init__(self):
         super(AlexNet, self).__init__()
 
-        n_channels = config['n_channels']
-        num_classes = config['n_classes']
-        lr = config['lr']
-        opt = config['optimizer']
-        lossf = config['lossf']
-        self.PreTrained = config['PreTrained']
-        self.config = config
+        n_channels = config.n_channels
+        num_classes = config.n_classes
+        lr = config.lr
+        opt = config.optimizer
+        lossf = config.lossf
+        self.PreTrained = config.PreTrained
 
         self.features = nn.Sequential(
             nn.Conv2d(n_channels, 64, kernel_size=11, stride=4, padding=2),
@@ -90,14 +89,14 @@ class AlexNet(model):
         return x
 
 
-def alexnet(pretrained=False, **kwargs):
+def alexnet(pretrained=False):
     r"""AlexNet model architecture from the
     `"One weird trick..." <https://arxiv.org/abs/1404.5997>`_ paper.
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = AlexNet(**kwargs)
+    model = AlexNet()
     if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['alexnet']))
     return model

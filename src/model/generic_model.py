@@ -1,11 +1,15 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import shutil
+
 from ..logger import Logger
+import configs.config as config
 
 log = Logger()
 
-class model(nn.Module):
+
+class Model(nn.Module):
 
 	def accuracy(self, x, y):
 
@@ -14,8 +18,6 @@ class model(nn.Module):
 		eq = torch.eq(arg.squeeze(), y.squeeze())
 
 		return torch.mean(eq.float())
-
-		# print(self.config['dir']['Exp'])
 
 	def print_info(self, info):
 
@@ -26,20 +28,23 @@ class model(nn.Module):
 
 	def save(self, no, epoch_i, info, is_best=False, filename='checkpoint.pth.tar'):
 
-		torch.save({'epoch': epoch_i,
-					'state_dict': self.state_dict(),
-					'optimizer': self.opt.state_dict()},self.config['dir']['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+filename)
-		torch.save(info, self.config['dir']['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+'info_'+filename)
+		torch.save({
+			'epoch': epoch_i,
+			'state_dict': self.state_dict(),
+			'optimizer': self.opt.state_dict()}, config.dir['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+filename)
+		torch.save(info, config.dir['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+'info_'+filename)
 		if is_best:
 			
-			shutil.copyfile(self.config['dir']['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+filename, 'model_best.pth.tar')
-			shutil.copyfile(self.config['dir']['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+'info_'+filename, 'info_model_best.pth.tar')
+			shutil.copyfile(
+				config.dir['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+filename, 'model_best.pth.tar')
+			shutil.copyfile(
+				config.dir['Exp']+'/'+str(no)+'_'+str(epoch_i)+'_'+'info_'+filename, 'info_model_best.pth.tar')
 
 	def load(self, path, path_info):
 
-		checkpoint = torch.load(self.config['dir']['Exp']+'/'+path)
+		checkpoint = torch.load(config.dir['Exp']+'/'+path)
 
 		self.load_state_dict(checkpoint['state_dict'])
 		self.opt.load_state_dict(checkpoint['optimizer'])
 
-		return checkpoint['epoch'], torch.load(self.config['dir']['Exp']+'/'+path_info)
+		return checkpoint['epoch'], torch.load(config.dir['Exp']+'/'+path_info)

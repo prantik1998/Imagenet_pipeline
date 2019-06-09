@@ -1,1 +1,6 @@
-click==6.7
+click==7.0
+tqdm==4.31.1
+numpy==1.16.2
+torch==1.1.0
+torchvision==0.2.2.post3
+matplotlib==3.0.3

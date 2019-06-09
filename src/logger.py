@@ -1,21 +1,21 @@
 from datetime import datetime
-from .read_yaml import read_yaml
 import sys
 
-class Logger():
+import configs.config as config
+
+
+class Logger:
 
 	def __init__(self):
-		self.config = read_yaml()
-		self.write_path = self.config['dir']['Exp']+'/log.txt'
-		self.write_path_err = self.config['dir']['Exp']+'/log_err.txt'
-		del self.config
+		self.write_path = config.dir['Exp']+'/log.txt'
+		self.write_path_err = config.dir['Exp']+'/log_err.txt'
 		sys.stderr = open(self.write_path_err, 'a')
 		self.f = open(self.write_path, 'a')
 		self.g = open(self.write_path_err, 'a')
 
 	def first(self):
-		self.f.write('\n--------- Starting new session: '+ str(datetime.now().time()) +' ---------\n\n')
-		print('\n--------- Starting new session: '+ str(datetime.now().time()) +' ---------\n\n', file=sys.stderr)
+		self.f.write('\n--------- Starting new session: '+ str(datetime.now().time()) + ' ---------\n\n')
+		print('\n--------- Starting new session: '+ str(datetime.now().time()) + ' ---------\n\n', file=sys.stderr)
 	
 	def info(self, *args):
 

@@ -1,11 +1,10 @@
 import torch.nn as nn
-import math
 import torch.utils.model_zoo as model_zoo
-from .generic_model import model
 import torch
-import torch.nn.functional as F
 import torch.optim as optim
+
 from ..logger import Logger
+from .generic_model import Model
 
 log = Logger()
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
@@ -98,7 +97,7 @@ class Bottleneck(nn.Module):
         return out
 
 
-class ResNet(model):
+class ResNet(Model):
 
     def __init__(self, block, layers, config):
 

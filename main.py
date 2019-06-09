@@ -1,34 +1,35 @@
-import click#Inbuild class
-from src.pipeline_manager import PipelineManager#Created by All-AI
+# Author - Mayank Kumar Singh
 
-from src.logger import Logger#Created by All-AI
+import configs.config as config
+import click
+from src.pipeline_manager import PipelineManager
+from src.logger import Logger
 
-@click.group()#Decorators
-def main():#main=click.group(main)
+
+@click.group()
+def main():
 	pass
 
-@main.command()#Decorators
-@click.option('-p', '--pipeline_name', help='classification', required=True)#Decorators	specifing the work performed for example Classification
-@click.option('-m', '--model', help='ResNet, IncepNet, AlexNet' , required=True)#Decorators	specifing the model that will be used to solve this problem
-def prepare_metadata(pipeline_name, model):#prepare_metadata=main.command(click.option(click.option(prepare_metadata)))
-    pipeline_manager.prepare_metadata(pipeline_name, model)#Calling prepare_metadata
 
-@main.command()#Decorators
-@click.option('-p', '--pipeline_name', help='classification', required=True)#Decorators	specifing the work performed for example Classification
-@click.option('-m', '--model', help='ResNet, IncepNet, AlexNet' , required=True)#Decorators	specifing the model that will be used for training the data
-def train(pipeline_name, model):#train=main.command(click.option(click.option(train)))
-    pipeline_manager.train(pipeline_name, model)#Training the Model
+@main.command()
+def train():
+	"""
+		Call this to train the model. To run - python main.py train
+	"""
+	pipeline_manager.train()
 
-@main.command()#Decorators
-@click.option('-p', '--pipeline_name', help='classification', required=True)#Decorators specifing the work performed for example Classification	
-@click.option('-m', '--model', help='ResNet, IncepNet, AlexNet' , required=True)#Decorators specfing the model that will be used for training
-def test(pipeline_name, model):#test=main.command(click.option(click.option(test)))
-    pipeline_manager.test(pipeline_name, model)#Testing the model
 
-if __name__ == "__main__":#Running the code
+@main.command()
+def test():
+	"""
+		Call this to test the model. To run - python main.py test
+	"""
+	pipeline_manager.test()
 
-	pipeline_manager = PipelineManager()#Calling the PipelineManager
-	log = Logger()#Calling the Logger function
+
+if __name__ == "__main__":
+
+	pipeline_manager = PipelineManager()
+	log = Logger()
 	log.first()
-	
-	main()#Calling the main function
+	main()
